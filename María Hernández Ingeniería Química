@@ -1,1 +1,441 @@
 
+
+#### Distribuciones continuas #####
+
+## Uniforme
+
+## Normal
+
+## Exponencial
+
+###############################################################
+
+### Uniforme
+
+# En continuas las funciones son las mismas que en discretas: dunif, da la imagen de x,
+
+# punif = P(X <= x), qunif = P( X <= xu) = p, runif = genera números aleatorios de una uniforme
+
+"       1/(b-a), si a < x < b, 
+f(x) = {
+         0,       en otro caso"
+
+"Ejemplo 6.1: Suponga que el tiempo máximo que se puede reservar una sala de
+conferencias grande de cierta empresa son cuatro horas. Con mucha frecuencia
+tienen conferencias extensas y breves. De hecho, se puede suponer que la 
+duración X de una conferencia tiene una distribución uniforme en el
+intervalo [0, 4]"
+
+a <- 0
+
+b <- 4
+
+f.x <- function(x) {
+  if ( 0 <= x & x <= 4) {
+    return(1/(b-a))
+  } else {
+      return(0)
+    }
+ }
+
+f.x(100)
+
+x <- seq(0,4,by = 0.001)
+
+y <- sapply(x, f.x)
+
+df.u <- data.frame(x,y);df.u
+
+g.u <- function(x){1/4 + 0*x}
+
+g.u(10)
+
+library(ggplot2)
+
+#geom_ribbon(data = subset(df1, -1 < x & x < 0.5),
+#           aes(ymin = 0, ymax = y),
+#           fill = "lightblue", alpha = 0.8) +
+#  Flecha del eje X hacia la derecha
+
+ggplot(df.u,aes(x,y)) +
+  geom_line(col='darkblue') +
+  geom_segment(x = 0,y = 0,xend = 0,yend = y, linetype='dashed', col="brown") +
+  geom_segment(x = 4,y = 0,xend = 4,yend = y, linetype='dashed', col = "brown") +
+  geom_ribbon(data = subset(df.u, 3 < x & x < 4),
+                         aes(ymin = 0, ymax = y),
+                         fill = "purple", alpha = 0.8) +
+  labs(title = "Distribución Uniforme con a = 0 y b = 4",subtitle =  "P(X > 3)")
+
+## P(X >= 2)
+
+punif(q = 2,min = a,max = b,lower.tail = FALSE)
+
+integrate(g.u,lower = 2, upper = 4)$value
+
+# El valor esperado, E(X) = Integral(x*f(x),min, max)
+
+e.u <- function(x){x*(1/(b-a))}
+
+e.x <- integrate(e.u,lower = a, upper = b)$value
+
+e.x
+
+g.u2 <- function(x){x^2 * 1/(b - a)}
+
+e.x2 <- integrate(g.u2,a, b)$value
+
+v.x <- e.x2 - e.x^2
+
+v.x
+
+(b - a)^2/12 # varianza para uniforme : (b-a)^2/12
+
+"Distribución Normal"
+
+### Definición
+
+" f(x;μ,σ) = (1/σ*sqrt(2pi)) exp(-0.5((x-μ)/σ)^2), μ E R,σ > 0 "
+
+# donde:
+
+# x los valores que puede tomar la variable aleatoria.
+
+#  mu es la media (promedio) de la distribución que es igual a la mediana y a la moda.
+
+# σ  es la desviación estándar, que mide la dispersión de los datos con respecto a mu.'
+
+# A Pedal 
+
+# Las edades de los estudiantes de la U se distribuyen normal con media 20 y sigma 1.2
+
+mu <- 20
+
+sigma <- 1.2
+
+f.n <- function(x){
+  y <- (1/(sigma*sqrt(2*pi)))*exp(-0.5*((x-mu)/sigma)^2)
+ return(y)                               
+}
+
+f.n(20.5) # imagen de 20.5 en f.n
+
+dnorm(x = 20.5, mean = 20,sd = 1.2)
+
+x.n <- seq(15,28,by = 0.001)
+
+y.n <- sapply(x.n, f.n)
+
+integrate(f.n,lower = -Inf,upper = Inf)$value
+
+f.n(20.45) # imagen de 20.45
+
+f.n(8.5)
+
+plot(x.n,f.n(x.n),type = "l", col="darkblue",main = "Gráfica de una normal con media 20, y sigma1.2")
+segments(x0 = 20, y0 = 0, x1 = 20, y1 = f.n(20), col = "purple",lty = "dashed")
+
+
+# Usando las funciones de R
+
+" dnorm: imagen, pnorm = F(x),qnorm = cuantil, rnorm: genera números aleatorios"
+
+imag <- dnorm(20,mean = mu,sd = sigma)
+
+plot(x.n,imag, type='l', col='red', main = "Gráfica de la normal, media = 20, sd = 1.2")
+
+segments(x0 = 20, y0 = 0, x1 = 20, y1 = 0.3324519, col = "purple",lty = "dashed")
+
+#### Simulación de las estaturas de las estudiantes hombres de la facultad de ingeniería
+
+set.seed(257) # Sembrar la semilla 257
+
+mu <- 168.5
+
+sigma <- 5
+
+x. <- rnorm(n = 1000,mean = mu,sd = sigma)
+
+y. <- dnorm(x = x.,mean = mu, sd = sigma)
+
+hist(x.)
+
+plot(density(x.))
+
+df1 <- data.frame(x.,y.)
+
+graf1 <- hist(x.,ylim = c(0,0.16),freq = FALSE,main = " Histograma para las estaturas de las est de la Escuela",
+              col = "cadetblue", xlab = "Estaturas")
+
+### Gráfica con ggplot
+
+library(ggplot2)
+
+dnorm(168.5,mean = 168.5, sd = 5)
+
+ggplot(data = df1,aes(x = x., y = y.)) +
+  geom_line( col = "darkblue") +
+  geom_segment(x = 168.5, xend = 168.5, y = 0,  yend = 0.07978846, linetype = "dashed", col = "purple") +
+  labs(title = " Gráfica de una normal, media = 168.5, sd = 5")+
+  theme_minimal()
+
+" Se elige una estudiante al azar, encuentre P(171.5 < X < 178.5)"
+
+f.n <- function(x){
+  y <- (1/(sigma*sqrt(2*pi)))*exp(-0.5*((x-mu)/sigma)^2)
+  return(y)                               
+}
+
+sol1 <- integrate(f.n, lower = 171.5,upper = 178.5)$value
+
+cat("P(171.5 < X < 178.5) = ",sol1)
+
+# Otra forma con R
+
+sol2 <- pnorm(q = 178.5,mean = mu, sd = sigma, lower.tail = TRUE) - pnorm(171.5, mu,sigma)
+
+cat("P(171.5 < X < 178.5) = ",sol2)
+
+# P(X < 180.5)
+
+sol3 <- pnorm(180.5, mu, sigma)
+
+cat("P(X <= 180.5) = ",sol3)
+
+# P(X > 185.5)
+
+sol4 <- integrate(f.n,lower = 185.5,upper = 500)$value
+
+cat(" La probabilidad pedida es:", sol4)
+
+sol4a <- pnorm(185.5,mu,sigma,lower.tail = FALSE)
+  
+cat(" La probabilidad pedida es:", sol4a)
+
+# Uso de qnorm
+
+# P(X >= q) = 0.50
+
+qnorm(p = 0.5,168.5, 5,lower.tail = FALSE)
+
+library(ggplot2)
+
+ggplot(df1,aes(x = x., y = y.)) +
+  geom_line(col = "purple") +
+  labs(title = "Gráfica de la Normal, mu = 160.5, sigma = 5")
+
+# P(158 < X < 162)
+
+# P(158<X<162) = pnorm(162,160,3,T)-pnorm(158,160,3,T)
+
+pnorm(q=162,mean=160,sd=3,lower.tail=TRUE)-pnorm(q=158,160,3,TRUE)
+
+### Normal estandar
+
+### Z = (X-mu)/Sigma
+
+
+
+# P(35 <= X <= 42) = P(Z1 <= Z <= Z2)
+
+x1 <- 35
+
+x2 <- 42
+
+mu <- 40
+
+sigma <- 2.5
+
+z1 <- (x1 - mu)/sigma
+
+z2 <- (x2 - mu)/sigma
+
+# Una forma
+
+pnorm(42,40,2.5) - pnorm(35,40,2.5)
+
+# Otra forma
+
+pnorm(z2) - pnorm(z1)
+#z
+
+hist(z)
+
+Z1 = (158-162.8)/21;Z1
+
+Z2 = (164-162.8)/21;Z2
+
+# P(158<X<162) = P(Z1<Z<Z2) =P(-1.333333<Z<-0.3333333)
+
+pnorm(Z2,0,1,T)-pnorm(Z1,0,1,T)
+
+pnorm(164,162.8,21,T)-pnorm(158,162.8,21,T)
+
+library(ggplot2)
+
+# Función para calcular la probabilidad acumulada
+p_norm <- function(x, mean, sd) {
+  p <- Vectorize(function(x) integrate(dnorm, -Inf, x, mean = mean, sd = sd)$value)(x)
+  return(p)
+}
+
+p_norm(162,160,3) # P(X<=162)
+
+### P (Z < k) = 0.0427
+
+qnorm(p = 0.0427)
+qnorm(p = 0.59)
+# Limites de la región a sombrear
+lower_limit <- 158
+upper_limit <- 162
+
+# Media y desviación estándar
+mean <- 160
+sd <- 3
+
+# Crear un data frame con valores para x
+x <- seq(148, 172, length.out = 100)
+
+# Crear un data frame con valores de la curva normal y la probabilidad acumulada para x
+df <- data.frame(x = x, y = dnorm(x, mean, sd), p = p_norm(x, mean, sd))
+
+# Graficar la curva normal y la región bajo la curva normal
+ggplot(df, aes(x = x, y = y)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = 0, ymax = y, fill = "Region"), 
+              data = subset(df, x >= lower_limit & x <= upper_limit), 
+              alpha = 0.5) +
+  scale_fill_manual(values = c("Region" = "blue")) +
+  xlim(150, 170) +
+  ylim(0, 0.15) +
+  labs(x = "Valores de x", y = "Densidad de probabilidad") +
+  annotate("text", x = 160, y = 0.05, label = "P(158 < X < 162)", size = 6,
+           fontface = "italic", color="brown") +
+  ggtitle("Probabilidad dentro de valores dados") +
+  theme_bw()
+
+
+### Ejercicio 6.13
+
+
+mu <- 40
+
+d_e <- 6.3
+
+# P(X>32)
+
+a. <- pnorm(32,40,6.3,lower.tail = FALSE)
+a.
+b. <- pnorm(28,40,6.3,lower.tail = TRUE)
+b.
+
+# P(37<X<49)
+c. <- pnorm(49,40,6.3,lower.tail = TRUE)-pnorm(37,40,6.3,lower.tail = TRUE)
+c.
+
+p_norm <- function(x, mean, sd) {
+  p <- Vectorize(function(x) integrate(dnorm, -Inf, x, mean = mean, sd = sd)$value)(x)
+  return(p)
+}
+
+
+# Limites de la región a sombrear
+lower_limit <- 37
+upper_limit <- 49
+
+# Media y desviación estándar
+mean <- 40
+sd <- 6.3
+
+max <- dnorm(40,40,6.3)
+# Crear un data frame con valores para x
+x <- seq(20, 64, length.out = 100)
+
+# Crear un data frame con valores de la curva normal y la probabilidad acumulada para x
+df <- data.frame(x = x, y = dnorm(x, mean, sd), p = p_norm(x, mean, sd))
+
+# Graficar la curva normal y la región bajo la curva normal
+ggplot(df, aes(x = x, y = y)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = 0, ymax = y, fill = "Region"), 
+              data = subset(df, x >= lower_limit & x <= upper_limit), 
+              alpha = 0.5) +
+  scale_fill_manual(values = c("Region" = "blue")) +
+  xlim(37, 49) +
+  ylim(0, 0.08) +
+  labs(x = "Valores de x", y = "Densidad de probabilidad") +
+  theme_bw()
+
+#  Ejemplo de Manual de R
+
+#Ejemplo
+
+#(Ejercicio propuesto 14) La duración de un determinado
+#tipo de lavadora automática tiene una distribución normal 
+#con una media de 3.1 años y una desviación estándar de 1.2 años.
+#El fabricante quiere ofrecer un cambio de
+#¿Cuál es el tiempo de duración máximo que debería 
+#poner en la publicidad para reponer solo el 15% de 
+#las lavadoras.
+
+shadow.dist <- function(dist='dnorm', param=list(mean=0, sd=1),
+                        a=NULL, b=NULL, type='lower',
+                        col.shadow='skyblue', col.line='black', lwd=3,
+                        nbreaks=10000, ylab=NULL, x, ...) {
+  
+  type <- match.arg(arg=type, choices=c('lower', 'middle', 'upper', 'two'))
+  
+  if (is.null(a) & is.null(b)) stop('At least define the parameter a')
+  
+  if (type %in% c('middle', 'two') & length(c(a, b)) <=1)
+    stop("When type is 'middle' or 'two' you must define a & b")
+  
+  if (length(c(a, b)) == 2) { # To ensure that a < b
+    values <- c(a, b)
+    a <- min(values)
+    b <- max(values)
+  }
+  
+  if (is.null(a) & !is.null(b)) a <- b
+  
+  if (type == 'lower') {
+    b <- a
+    a <- -999
+  }
+  
+  if (type == 'upper') {
+    b <- 999
+  }
+  
+  # To include the ylab automatically if ylab was NULL
+  if (is.null(ylab)) ylab <- 'Density'
+  
+  # To create the main polygon
+  step <- (b - a) / nbreaks
+  cord.x <- c(a, seq(from=a, to=b, by=step), b)
+  y <- seq(from=a, to=b, by=step)
+  cord.y <- c(0, do.call(dist, c(list(x=y), param)), 0)
+  
+  # To create a secondary polygon if type='two'
+  edge <- 999
+  cord.x2 <- c(-edge, seq(from=-edge, to=edge, length.out=1e6), edge)
+  y <- seq(from=-edge, to=edge, length.out=1e6)
+  cord.y2 <- c(0, do.call(dist, c(list(x=y), param)), 0)
+  
+  curve(do.call(dist, c(list(x), param)), ylab=ylab, ...) # First curve
+  if (type == 'two') {
+    polygon(cord.x2, cord.y2, col=col.shadow)
+    col.shadow <- 'white'
+  }
+  polygon(cord.x, cord.y, col=col.shadow)                   # Main shadow
+  curve(do.call(dist, c(list(x), param)), add=TRUE,
+        lwd=lwd, col=col.line)                              # Second curve
+}
+
+?shadow.dist
+
+shadow.dist(dist='dnorm', param=list(mean=3.1, sd=1.2),
+            a=qnorm(p=0.15, mean=3.1, sd=1.2), type='lower', from=0, to=6,
+            main='', las=1,
+            col.shadow='springgreen3', xlab='X', ylab='Densidad')
+text(x=1.3, y=0.05, "0.15", col="yellow1", cex=2)
+
