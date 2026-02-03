@@ -1,0 +1,156 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### Cuestionario
+
+##### Pregunta 1
+
+La distribución de probabilidad de la variable aleatoria discreta $X$ es 
+
+$f(x) = \binom{3}{x}(\frac{1}{4})^x(\frac{3}{4})^(3-x)$, $x = 0,1,2,3$
+
+a. Calcule la media de X
+b. Gráfique la función de probabilidad
+c. Encuentre la desviación estándar de X
+
+```{r}
+
+library(ggplot2)
+
+x <- c(0,1,2,3)
+
+f.x <- choose(3,x)*(1/4)^x*(3/4)^(3-x);f.x
+
+sum(f.x)
+
+e.x <- sum(x*f.x);e.x
+
+cat("El valor esperado de X es:",e.x)
+
+```
+
+
+##### Pregunta b
+
+La gráfica de la función de probabilidad dadad es:
+
+```{r, echo=FALSE}
+
+df1 <- data.frame(x, f.x)
+
+ggplot(df1,aes(x,f.x))+
+  geom_point(col = "purple")+
+  geom_segment(stat = "identity", x = x, xend=x, y = 0, yend = f.x,   linetype="dashed", col = "purple") +
+  geom_hline(yintercept = 0, col = "black") +
+  geom_vline(xintercept = 0, col = "black") +
+  labs(title = "Función de probabilidad del ejercicio")
+
+```
+
+##### La desviación estándar 
+
+$V(x) = E(x^2) - E(x)^2$
+
+```{r}
+e.x2 <- sum(x^2*f.x)
+
+v.x <- e.x2 - e.x^2
+
+e.x^2
+
+cat(" La desviación estándar de X es", sqrt(v.x))
+
+```
+
+##### Ejercicio 4.8
+
+Suponga que un distribuidor de joyería antigua está interesado en comprar un collar de oro para el que tiene 0.22 de probabilidades de venderlo con $250 de
+utilidad; 0.36 de venderlo con 150 de utilidad; 0.28 de venderlo al costo y 0.14 de venderlo con una pérdida de 150. ¿Cuál es su utilidad esperada?
+a. ¿Cuál es su utilidad esperada?
+b. ?Cuál la desviación estándar?
+c. Grafique la función de probabilidad
+
+```{r}
+ut <- c(-150,0,150,250)
+
+f.ut <- c(0.14,0.28,0.36,0.22)
+
+sum(f.ut)
+
+e.ut <- sum(ut*f.ut)
+
+cat("El valor esperado es:", e.ut)
+
+e.ut2 <- sum(ut^2*f.ut)
+
+cat("El valor esperado de la ut al cuadrado:", e.ut2)
+
+cat("El valor esperado de la ut todo al cuadrado:", e.ut^2)
+
+v.ut <- e.ut2 - e.ut^2
+
+cat("La desviación estándar es:", sqrt(v.ut))
+
+library(ggplot2)
+
+df2 <- data.frame(ut,f.ut)
+
+ggplot(df2,aes(ut,f.ut))+
+  geom_point(col = "blue")+
+  geom_segment(stat = "identity", x = ut, xend=ut, y = 0, yend = f.ut,   linetype="dashed", col = "purple") +
+  geom_hline(yintercept = 0, col = "black") +
+  geom_vline(xintercept = 0, col = "black") +
+  labs(title = "Función de probabilidad del ejercicio 4.8")
+
+```
+
+
+
+##### Ejercicio 4.14
+Sea $X$ la proporción de personas que responden a cierta encuesta que se envía por correo, si $X$ tiene la siguiente función de densidad:
+
+
+$$f(x) = \begin{cases}
+ \frac{2(x+2)}{5}, & 0 < x < 1\\
+  0, & \text{en otro caso}
+\end{cases}$$
+
+a. Encuentre $E(X)$ de la proporción de personas que responden la encuesta
+b. Calcule la varianza de la proporción de personas que responden la encuesta
+c. Grafique la función de densidad
+
+```{r}
+
+f.x1 <- function(x){(2*x+4)/5}
+
+x.1 <- seq(0, 1, by = 0.001)
+
+y <- sapply(x.1,f.x1)
+
+plot(x.1,y, type = "l", col = "purple",main= "Gráfica de la función dse densidad")
+
+df3 <- data.frame(x.1,y)
+
+ggplot(df3,aes(x.1,y))+
+  geom_line(stat = "identity", col="purple")+
+  geom_hline(yintercept = 0, col = "black") +
+  geom_vline(xintercept = 0, col = "black") +
+  labs(title = "Función de3 densidad del ejercicio")
+
+g.x <- function(x){x*(2*x+4)/5}
+
+e_x1 <- integrate(g.x,lower = 0, upper = 1)$value
+
+cat("El valor esperado de X es:",e_x1)
+
+h.x <- function(x){x^2*(2*x+4)/5}
+
+e_x2 <- integrate(h.x,lower = 0, upper = 1)$value
+
+v.x1 <- e_x2 - e_x1^2
+
+cat("La varianza de X es", v.x1)
+
+```
